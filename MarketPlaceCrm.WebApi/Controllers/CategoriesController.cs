@@ -62,6 +62,7 @@ namespace MarketPlaceCrm.WebApi.Controllers
 
             public int ProductId { get; set; }
         }
+        
         [HttpPut("changeCategoryForProduct")]
         public IActionResult Change([FromForm]ChangeCategoryForm changeCategoryForm)
         {

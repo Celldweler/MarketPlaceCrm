@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using MarketPlaceCrm.Data.Context;
 using MarketPlaceCrm.Data.Entities;
 using MarketPlaceCrm.Data.Entities.Moderation;
@@ -19,7 +22,7 @@ namespace MarketPlaceCrm.WebApi.Controllers
         {
             _ctx = ctx;
         }
-        
+
         // get all orders for all time
         [HttpGet]
         public IActionResult Get()
@@ -32,22 +35,22 @@ namespace MarketPlaceCrm.WebApi.Controllers
                 .OrderByDescending(x => x.Created)
                 .AsEnumerable()
                 .Select(OrderVm.Projection);
-                // .Select(x => new
-                // {
-                //     x.Id,
-                //     x.Status,
-                //     x.ShipAddress,
-                //     x.ShipCity,
-                //     x.ShipCountry,
-                //     x.ShipRegion,
-                //     x.ShipZipCode,
-                //     x.Freight,
-                //     x.CustomerID,
-                //     Created = x.Created.ToString("dd.mm.yyyy hh:mm"),
-                //     OrderDetails = x.OrderDetails.AsQueryable().Select(OrderDetailMapper.Projection),
-                //     Customer = CustomerMapper.WithoutOrders.Compile().Invoke(x.Customer)
-                // })
-            
+            // .Select(x => new
+            // {
+            //     x.Id,
+            //     x.Status,
+            //     x.ShipAddress,
+            //     x.ShipCity,
+            //     x.ShipCountry,
+            //     x.ShipRegion,
+            //     x.ShipZipCode,
+            //     x.Freight,
+            //     x.CustomerID,
+            //     Created = x.Created.ToString("dd.mm.yyyy hh:mm"),
+            //     OrderDetails = x.OrderDetails.AsQueryable().Select(OrderDetailMapper.Projection),
+            //     Customer = CustomerMapper.WithoutOrders.Compile().Invoke(x.Customer)
+            // })
+
             return Ok(orders);
         }
 
@@ -61,7 +64,7 @@ namespace MarketPlaceCrm.WebApi.Controllers
                 .OrderByDescending(x => x.Created)
                 .AsEnumerable()
                 .Select(OrderVm.Projection);
-            
+
             return Ok(latestOrders);
         }
 
@@ -70,12 +73,14 @@ namespace MarketPlaceCrm.WebApi.Controllers
         {
             return Ok();
         }
+
         public class ChangeOrderStatusForm
         {
             public OrderStatuses Status { get; set; }
             public int OrderId { get; set; }
             public int ModeratorId { get; set; }
         }
+
         [HttpPost("changeStatus")]
         public IActionResult ChangeOrderStatus([FromForm] ChangeOrderStatusForm changeOrderStatusForm)
         {
@@ -96,7 +101,7 @@ namespace MarketPlaceCrm.WebApi.Controllers
             //     VersionState = VersionState.Staged,
             // };
             // _ctx.Orders.Add(tempVersionOrder);
-            
+
             _ctx.OrderHistory.Add(new OrderHistoryDetail
             {
                 OrderId = changeOrderStatusForm.OrderId,
@@ -104,9 +109,9 @@ namespace MarketPlaceCrm.WebApi.Controllers
                 Status = changeOrderStatusForm.Status
             });
             _ctx.SaveChanges();
-            
+
             order.Status = changeOrderStatusForm.Status;
-            
+
             _ctx.ModerationItems.Add(new ModerationItem
             {
                 // CurrentId = tempVersionOrder.Id,
@@ -127,14 +132,87 @@ namespace MarketPlaceCrm.WebApi.Controllers
                     ReceiverId = mod.Id,
                     IsRead = false,
                     Type = NotificationType.ChangeOrderStatus,
-                    JsonData = $"{currentModerator.Email} changed order current order #{changeOrderStatusForm.OrderId}, status: {changeOrderStatusForm.Status.ToString()}",
+                    JsonData =
+                        $"{currentModerator.Email} changed order current order #{changeOrderStatusForm.OrderId}, status: {changeOrderStatusForm.Status.ToString()}",
                 });
             }
+
             _ctx.SaveChanges();
 
             return Ok();
         }
-        
+
+        public class CheckoutForm
+        {
+            public int ProductId { get; set; }
+            public int StockId { get; set; }
+            public int Qty { get; set; }
+            public decimal Price { get; set; }
+
+
+            public List<CartProduct> CartProducts { get; set; }
+        }
+
+        public class CartProduct
+        {
+            public int ProductId { get; set; }
+
+            public int StockId { get; set; }
+
+            // public int CustomerId { get; set; }
+            public int Qty { get; set; }
+            public decimal Price { get; set; }
+        }
+
+        [HttpPost("checkout")]
+        public async Task<IActionResult> Checkout([FromForm] CheckoutForm checkoutForm)
+        {
+            // TODO: only if customer ordered 1 product
+            if (checkoutForm == null) return BadRequest();
+
+            var checkInStock = _ctx.Stocks.Include(x => x.Product)
+                .FirstOrDefault(x => x.Id == checkoutForm.StockId && x.ProductId == checkoutForm.ProductId);
+            if (checkInStock == null)
+                return BadRequest($"{checkInStock.Product.Name} {checkInStock.Description} sold out");
+
+            if (checkoutForm.Qty <= 0) return BadRequest("invalid qty of product");
+            checkInStock.Qty -= checkoutForm.Qty;
+
+            var customerEmail = HttpContext.User?.Claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Email))?.Value;
+            var customer = _ctx.Customers.FirstOrDefault(x => x.Email.Equals(customerEmail));
+
+            if (customer == null) return BadRequest($"customer {customerEmail} not exist in db");
+
+            var newOrder = new Order
+            {
+                CustomerID = customer.Id,
+                Status = OrderStatuses.Pending,
+                Deleted = false,
+                OrderDetails = new List<OrderDetail>
+                {
+                    new OrderDetail
+                    {
+                        Qty = checkoutForm.Qty,
+                        ProductID = checkoutForm.ProductId,
+                        StockId = checkoutForm.StockId,
+                        UnitPrice = checkoutForm.Price
+                    }
+                }
+                // OrderDetails = checkoutForm.CartProducts.Select(x => new OrderDetail
+                // {
+                //     Qty = x.Qty,
+                //     ProductID = x.ProductId,
+                //     StockId = x.StockId,
+                //     UnitPrice = x.Price
+                // }).ToList()
+            };
+
+            await _ctx.AddAsync(newOrder);
+            await _ctx.SaveChangesAsync();
+
+            return Ok(newOrder.Id);
+        }
+
         // new orders pending processing
     }
 }

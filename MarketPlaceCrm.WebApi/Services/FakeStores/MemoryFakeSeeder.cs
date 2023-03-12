@@ -38,6 +38,7 @@ namespace MarketPlaceCrm.Data.SeedData
                 // SeedShippers(ctx);
                 initState(ctx);
                 SeedCategories(ctx);
+                SeedShippingMethods(ctx);
                 
                 ctx.AddRange(new List<OrderHistoryDetail>
                 {
@@ -152,6 +153,16 @@ namespace MarketPlaceCrm.Data.SeedData
             }
         }
 
+        private static void SeedShippingMethods(AppDbContext ctx)
+        {
+            ctx.AddRange(new List<ShippingMethod>
+            {
+                new ShippingMethod() {Id = 1, Name = "Самовывоз из точки выдачи", Description = "Бесплатно"},
+                new ShippingMethod() {Id = 2, Name = "Самовывоз из отделений почтовых операторов", Description = "63₴ - 120₴"},
+                new ShippingMethod() {Id = 3, Name = "Доставка курьером", Description = "Бесплатно"},
+            });
+        }
+
         private static void initState(AppDbContext ctx)
         {
             if (_fakeProducts != null && _fakeProducts.Count == 0)
@@ -249,6 +260,19 @@ namespace MarketPlaceCrm.Data.SeedData
                         _fakeOrders.AddRange(orders);
                 }
 
+                ctx.Add(new Customer
+                {
+                    Id = 1111,
+                    Email = "test@email.com",
+                    PhoneNumber = "+380 96 12 333 22",
+                    UserName = "test",
+                    Name = "Artem",
+                    LastName = "Naumov",
+                    Address = "fake address",
+                    City = "Odessa",
+                    Country = "Ukraine",
+                    ZipCode = "65000"
+                });
                 ctx.AddRange(cutomers);
                 ctx.AddRange(_fakeOrders);
                 ctx.AddRange(_fakeOrderDetails);

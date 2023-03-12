@@ -1,21 +1,16 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <v-card>
-        <v-btn @click="printToConsole()">notifications: {{ notifications.length }}</v-btn>
-        <v-card-title class="headline">
-          {{ message }}
-        </v-card-title>
-        <v-card-text>
-          <div v-for="m in Messages">
-            {{ m.message }}
-          </div>
-          <v-text-field label="send comment" v-model="messageContent"/>
-          <v-btn @click="sendComment">send</v-btn>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+  <div>
+    <v-row justify="center">
+      <v-col class="d-flex justify-center align-start" lg="4" v-for="i in 20">
+        <v-card width=400  height="400">
+          <v-img class="align-end text-white" height="400" src="https://cdn.vuetifyjs.com/images/cards/docks.jpg" cover>
+            <v-card-title>Product 1</v-card-title>
+          </v-img>
+          <v-card-title>$ 100</v-card-title>
+        </v-card>
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script>
@@ -101,31 +96,31 @@ export default {
     //   .then(res => {
     //     console.log(res)
     //   })
-    this.$axios.$get("api/notifications/1").then(res => {
-      console.log(res)
-      this.notifications = res;
-    }).catch(er => console.log(er))
-
-
-    this.message = (await this.$axios.$get("/api/test"));
-    if (this.connection === null) {
-      this.connection = new HubConnectionBuilder()
-        .withUrl("http://localhost:5000/customHub")
-        .build()
-    }
-    this.connection
-      .start()
-      .then(() => {
-        window.console.log("Connection Success", this.connection.connectionId);
-
-        this.listen();
-      })
-      .catch((err) => {
-        window.console.log(`Connection Error ${err}`);
-      });
-    this.connection.onclose(() => {
-      window.console.log("Connection Destroy");
-    });
+    // this.$axios.$get("api/notifications/1").then(res => {
+    //   console.log(res)
+    //   this.notifications = res;
+    // }).catch(er => console.log(er))
+    //
+    //
+    // this.message = (await this.$axios.$get("/api/test"));
+    // if (this.connection === null) {
+    //   this.connection = new HubConnectionBuilder()
+    //     .withUrl("http://localhost:5000/customHub")
+    //     .build()
+    // }
+    // this.connection
+    //   .start()
+    //   .then(() => {
+    //     window.console.log("Connection Success", this.connection.connectionId);
+    //
+    //     this.listen();
+    //   })
+    //   .catch((err) => {
+    //     window.console.log(`Connection Error ${err}`);
+    //   });
+    // this.connection.onclose(() => {
+    //   window.console.log("Connection Destroy");
+    // });
   }
 }
 </script>

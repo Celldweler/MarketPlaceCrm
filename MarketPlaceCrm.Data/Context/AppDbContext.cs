@@ -22,6 +22,7 @@ namespace MarketPlaceCrm.Data.Context
         public DbSet<OrderHistoryDetail> OrderHistory { get; set; }
         public DbSet<ModerationItem> ModerationItems { get; set; }
         public DbSet<BackInStockSubscription> BackInStockSubscriptions { get; set; }
+        public DbSet<ShippingMethod> ShippingMethods { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

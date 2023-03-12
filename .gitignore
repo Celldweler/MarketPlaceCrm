@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+vue-adminlte-test/
+Sandbox/
+.idea/  
+
 # User-specific files
 *.rsuser
 *.suo
@@ -39,7 +43,6 @@ bld/
 #wwwroot/
 
 # Dependency directories
-vue-adminlte-test/
 
 
 # Visual Studio 2017 auto generated files

@@ -11,6 +11,9 @@ namespace MarketPlaceCrm.Data.Entities
         public Product? Product { get; set; }
         public int? ProductID { get; set; }  
         
+        public Stock? Stock { get; set; }
+        public int? StockId { get; set; }  
+        
         public Order Order { get; set; }
         public int OrderID { get; set; }
     }

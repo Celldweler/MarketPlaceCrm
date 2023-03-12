@@ -9,7 +9,7 @@ namespace MarketPlaceCrm.Data.Entities
     {
         public int Id { get; set; }
         public bool Deleted { get; set; }
-        public DateTime Created { get; set; }= DateTime.Now;
+        public DateTime Created { get; set; } = DateTime.Now;
         
         public OrderStatuses Status { get; set; }
 
@@ -28,7 +28,7 @@ namespace MarketPlaceCrm.Data.Entities
         
         public Customer Customer { get; set; }
         public int CustomerID { get; set; }
-        
-        public List<OrderDetail> OrderDetails { get; set; }
+
+        public List<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }

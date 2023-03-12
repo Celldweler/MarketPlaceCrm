@@ -39,14 +39,15 @@ namespace MarketPlaceCrm.WebApi.Controllers
         [HttpPost]
         public IActionResult Login([FromForm]UserForm userFormCredentials)
         {
-            if (userFormCredentials.UserName == "admin" && userFormCredentials.Password == "admin" 
-                                                        && CheckForNull(userFormCredentials))
-            {
-                var token = _jwtManager.GenerateToken();
-                return Ok(token);
-            }
+            // if (userFormCredentials.UserName == "admin" && userFormCredentials.Password == "admin" 
+            //                                             && CheckForNull(userFormCredentials))
+            // {
+            // }
+            var token = _jwtManager.GenerateToken(userFormCredentials.UserName);
+            if (token == "user not found")
+                return BadRequest("user not found");
 
-            return Unauthorized();
+            return Ok(token);
         }
     }
 }

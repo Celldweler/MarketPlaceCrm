@@ -12,8 +12,9 @@ namespace MarketPlaceCrm.WebApi.ServicesExtensions
                 options.AddPolicy(Constants.CorsPolicy, policy => policy
                     .AllowAnyHeader()
                     .AllowAnyMethod()
-                    .WithOrigins("http://localhost:3000")
-                    .AllowCredentials()
+                    .AllowAnyOrigin()
+                    // .WithOrigins("http://localhost:3000", "http://127.0.0.1:5173/")
+                    // .AllowCredentials()
                     .Build());
             });
         }

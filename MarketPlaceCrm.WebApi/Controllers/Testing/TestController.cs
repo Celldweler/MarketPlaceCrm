@@ -43,8 +43,8 @@ namespace MarketPlaceCrm.WebApi.Controllers.Testing
         [HttpGet("shippingMethods")]
         public IEnumerable<ShippingMethod> GetShippingMethods() => _ctx.ShippingMethods.AsEnumerable();
         
+        // [Authorize]
         [HttpGet("")]
-        [Authorize]
         public IActionResult Get() => Ok($"{nameof(TestController).ToLower()} is work!");
     }
 }

@@ -4,7 +4,9 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 vue-adminlte-test/
+Shop-Vue-Frontend/
 Sandbox/
+MarketPlaceCrm.sln
 .idea/  
 
 # User-specific files
